@@ -1,0 +1,15 @@
+name: "AI PR Generator"
+description: "Automatically generates a meaningful PR title and description by analyzing git diff using AI."
+author: "knnarro <knnarro@gmail.com>"
+branding:
+  icon: "edit-3"
+  color: "purple"
+
+inputs:
+  base_branch:
+    description: "Base branch to compare current changes with (e.g., main, develop)"
+    required: true
+
+runs:
+  using: "docker"
+  image: "Dockerfile"

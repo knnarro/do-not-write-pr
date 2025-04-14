@@ -1,0 +1,20 @@
+name: Test AI PR Generator
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Test AI PR Generator
+        uses: ./
+        with:
+          base_branch: ${{ github.base_ref }}
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
