@@ -1,8 +1,9 @@
 name: Test AI PR Generator
 
 on:
-  pull_request:
-    types: [opened, synchronize]
+  push:
+    branches:
+      - feature/**
 
 jobs:
   test:
@@ -15,6 +16,7 @@ jobs:
       - name: Test AI PR Generator
         uses: ./
         with:
-          base_branch: ${{ github.base_ref }}
+          base_branch: main
+          openai_api_key: ${{ secrets.OPENAI_API_KEY }}
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ github.token }}

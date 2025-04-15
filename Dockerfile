@@ -10,7 +10,7 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | g
     apt-get update && apt-get install -y gh
 
 COPY entrypoint.sh /entrypoint.sh
-COPY summarize_with_t5.py /summarize_with_t5.py
+COPY summarize_with_gpt.py /summarize_with_gpt.py
 RUN chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]

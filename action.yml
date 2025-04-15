@@ -9,7 +9,14 @@ inputs:
   base_branch:
     description: "Base branch to compare current changes with (e.g., main, develop)"
     required: true
+  openai_api_key:
+    description: "OpenAI API key for generating PR descriptions"
+    required: true
+    sensitive: true
 
 runs:
   using: "docker"
   image: "Dockerfile"
+  env:
+    GH_TOKEN: ${{ github.token }}
+    OPENAI_API_KEY: ${{ inputs.openai_api_key }}

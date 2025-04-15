@@ -1,4 +1,1 @@
-transformers
-torch
-sentencepiece
-hf_xet
+openai>=1.0.0
