@@ -14,5 +14,5 @@ runs:
   using: "docker"
   image: "Dockerfile"
   env:
-    GH_TOKEN: ${{ secrets.GH_TOKEN }}
-    OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    GH_TOKEN: ${{ inputs.gh_token }}
+    OPENAI_API_KEY: ${{ inputs.openai_api_key }}
