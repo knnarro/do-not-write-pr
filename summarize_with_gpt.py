@@ -91,8 +91,8 @@ if len(sys.argv) < 2:
 
 api_key = sys.argv[1]
 
-# Read diff from stdin
-diff = sys.stdin.read()
+with open("code.diff", "r") as f:
+    diff = f.read()
 
 # Process the diff
 diff_data = clean_diff(diff)
