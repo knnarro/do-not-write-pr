@@ -42,8 +42,7 @@ def generate_pr_description(diff, api_key):
     본문은 깔끔하게 소제목과 소제목에 대한 설명만 있으면 돼. 다른 텍스트는 필요 없어.
     그리고 시작할 때 'PR 본문:'이라는 텍스트도 필요 없어. 바로 소제목으로 시작하자.
 
-    참고로 제목과 본문의 내용의 언어는 한국어야.
-
+    참고로 제목과 본문의 내용의 언어는 한국어야. 기억해. 언어는 중요하니까.
     마지막으로 너는 반드시 아래와 같은 json 형식으로 답변해줘.
     {{
         "title": "[FEAT] 새로운 기능 추가",
@@ -85,8 +84,6 @@ with open("code.diff", "r") as f:
 
 try:
     result = generate_pr_description(diff, api_key)
-    result["title"] = result["title"].split(":", 1)[1].strip()
-    result["body"] = result["body"].split(":", 1)[1].strip()
     print(json.dumps(result))
 except Exception as e:
     print(json.dumps({
