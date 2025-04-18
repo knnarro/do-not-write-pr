@@ -74,7 +74,7 @@ def generate_pr_description(diff, api_key):
 
     마지막으로, 다음 세 가지는 절대 어기지 말아야 할 규칙이야:
     1. 제목의 형식은 '[TYPE] 변경 사항 요약'이어야 함
-    2. 제목과 본문은 반드시 한국어로 작성해야 함
+    2. 제목과 본문은 반드시 '한국어'로 작성해야 함
     3. 응답 형식은 반드시 유효한 JSON이어야 함 (추가 문구 없이)
     """
     
@@ -86,7 +86,7 @@ def generate_pr_description(diff, api_key):
         ],
         temperature=0.6,
         max_tokens=500,
-        response_format={"type": "json_object"}
+        response_format={"type":"json_object"}
     )
     content = response.choices[0].message.content
     
