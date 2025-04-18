@@ -48,16 +48,16 @@ def generate_pr_description(diff, api_key):
     본문은 깔끔하게 소제목과 소제목에 대한 설명만 있으면 돼. 다른 텍스트는 필요 없어.
     그리고 시작할 때 'PR 본문:'이라는 텍스트도 필요 없어. 바로 소제목으로 시작하자.
 
-    마지막으로 너는 반드시 아래와 같은 json 형식으로 답변해줘.
+    너는 반드시 아래와 같은 json 형식으로 답변해야 해.
     {{
         "title": "[FEAT] 새로운 기능 추가",
         "body": "### ✨ 새로운 기능 추가\n- 새로운 기능에 대한 설명 1\n- 새로운 기능에 대한 설명 2"
     }}
     나는 너의 답변을 json으로 파싱해서 제목과 본문을 추출할거야. 그니까 꼭 완벽한 json 형식으로 답변해줘.
 
-    중요한 부분. 이건 꼭 지켜줬으면 해.
-    1. 제목의 형식은 '[TYPE] 변경 사항 요약'이어야 해.
-    2. 제목과 본문의 언어는 한국어야.
+    마지막으로 한 번 더 강조할게. 이건 꼭 지켜줬으면 해.
+    1. 제목의 형식을 반드시 지켜줘. '[TYPE] 변경 사항 요약' 기억하지?
+    2. 제목과 본문의 언어는 '한국어'로 작성해줘.
     3. 답변의 형식은 json.loads() 함수로 파싱할 수 있어야 해.
     """
     
@@ -67,7 +67,7 @@ def generate_pr_description(diff, api_key):
             {"role": "system", "content": "너는 리뷰어가 이해하기 쉬운 PR의 제목과 본문을 만들어주는 헬퍼야."},
             {"role": "user", "content": prompt}
         ],
-        temperature=0.8,
+        temperature=0.5,
         max_tokens=500
     )
     content = response.choices[0].message.content
