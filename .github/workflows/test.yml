@@ -1,0 +1,22 @@
+name: Test AI PR Generator
+
+on:
+  push:
+    branches:
+      - feature/**
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Test AI PR Generator
+        uses: ./
+        with:
+          base_branch: main
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
