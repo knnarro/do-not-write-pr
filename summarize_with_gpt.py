@@ -13,7 +13,7 @@ def generate_pr_description(diff, api_key):
     {diff}
     위는 코드의 변경 사항에 대한 Git diff야. diff를 보고 적절한 PR 제목과 본문을 만들어줘.
 
-    제목은 '[TYPE] 제목'이라는 형식이어야 해,
+    제목은 '[TYPE] 변경 사항 요약'이라는 형식이어야 해,
     TYPE은 FEAT, FIX, DOCS, STYLE, REFACTOR, TEST, BUILD, CI, CHORE, REVERT 중 하나여야 해.
     예를 들어,
     [FEAT] 기능 추가
@@ -34,9 +34,12 @@ def generate_pr_description(diff, api_key):
     ### ✨ 새로운 기능 추가
     - 새로운 기능에 대한 설명 1
     - 새로운 기능에 대한 설명 2
+
+    ### 🐛 버그 수정
+    - 버그 수정에 대한 설명 1
+    - 버그 수정에 대한 설명 2
     이렇게 적어줘.
 
-    참고로 언어는 한국어로 해줘.
     무엇보다도 너는 반드시 아래와 같은 json 형식으로 답변해줘.
     {{
         "title": "[FEAT] 새로운 기능 추가",
@@ -46,7 +49,7 @@ def generate_pr_description(diff, api_key):
     
     try:
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4",
             messages=[
                 {"role": "system", "content": "너는 리뷰어가 이해하기 쉬운 PR의 제목과 본문을 만들어주는 헬퍼야."},
                 {"role": "user", "content": prompt}
