@@ -6,6 +6,12 @@ from openai import OpenAI
 
 
 def generate_pr_description(diff, api_key):
+    # 테스트 모드 확인 (API 키가 'test_'로 시작하는 경우)
+    if api_key.startswith("test_"):
+        return {
+            "title": "[TEST] 테스트 PR 생성",
+            "body": "### ✅ 테스트\n- 이것은 테스트 PR 설명입니다.\n- 실제 API 호출 없이 생성되었습니다."
+        }
     
     client = OpenAI(api_key=api_key)
     
@@ -42,14 +48,14 @@ def generate_pr_description(diff, api_key):
     본문은 깔끔하게 소제목과 소제목에 대한 설명만 있으면 돼. 다른 텍스트는 필요 없어.
     그리고 시작할 때 'PR 본문:'이라는 텍스트도 필요 없어. 바로 소제목으로 시작하자.
 
-    참고로 제목과 본문의 내용의 언어는 한국어야. 기억해. 언어는 중요하니까.
+    참고로 제목과 본문의 내용의 언어는 한국어야. 중요해.
+
     마지막으로 너는 반드시 아래와 같은 json 형식으로 답변해줘.
     {{
         "title": "[FEAT] 새로운 기능 추가",
         "body": "### ✨ 새로운 기능 추가\n- 새로운 기능에 대한 설명 1\n- 새로운 기능에 대한 설명 2"
     }}
     """
-    
     
     response = client.chat.completions.create(
         model="gpt-4-turbo",
@@ -61,14 +67,23 @@ def generate_pr_description(diff, api_key):
         max_tokens=500
     )
     content = response.choices[0].message.content
+    
     try:
         result = json.loads(content)
-    except json.JSONDecodeError as e:
-        lines = content.split('\n')
-        title = lines[0].replace('"title":', '').strip().strip('",')
-        body = '\n'.join(lines[1:]).replace('"body":', '').strip().strip('",')
+        return result
+    except json.JSONDecodeError:
+        lines = content.replace('"title":', '').replace('"body":', '').split('\n')
+        title, body = "", ""
+        has_title, is_body_start = False, False
+        for line in lines:
+            if line.startswith('[') and not has_title:
+                title = line.strip().strip('",')
+                has_title = True
+            if line.startswith('###') and has_title:
+                is_body_start = True
+            if is_body_start:
+                body += f"{line.strip()}\n"
         return {"title": title, "body": body}
-    return result
 
 if len(sys.argv) < 2:
     print(json.dumps({
@@ -79,12 +94,20 @@ if len(sys.argv) < 2:
 
 api_key = sys.argv[1]
 
-with open("code.diff", "r") as f:
-    diff = f.read()
-
 try:
+    # 파일에서 diff 읽기
+    with open("code.diff", "r") as f:
+        diff = f.read()
+        
+    # diff가 비어있는 경우 테스트 데이터 사용
+    if not diff.strip():
+        diff = "diff --git a/test.txt b/test.txt\nindex 1234567..abcdefg 100644\n--- a/test.txt\n+++ b/test.txt\n@@ -1,3 +1,4 @@\n Line 1\n Line 2\n+This is a new line\n Line 3"
+    
+    # PR 설명 생성
     result = generate_pr_description(diff, api_key)
-    print(json.dumps(result))
+    
+    # 결과 출력
+    print(json.dumps(result, ensure_ascii=False))
 except Exception as e:
     print(json.dumps({
         "title": "Error generating PR description",
