@@ -49,30 +49,23 @@ def generate_pr_description(diff, api_key):
         "title": "[FEAT] 새로운 기능 추가",
         "body": "### ✨ 새로운 기능 추가\n- 새로운 기능에 대한 설명 1\n- 새로운 기능에 대한 설명 2"
     }}
-    답변에 'PR 제목:', 'PR 본문:'이라는 텍스트는 포함하지 말아줘.
+    그리고 토큰 제한 때문에 끊길 것 같은 문장은 답변에 포함시키지 않아도 돼.
     """
     
     try:
         response = client.chat.completions.create(
-            model="gpt-4",
+            model="gpt-4-turbo",
             messages=[
                 {"role": "system", "content": "너는 리뷰어가 이해하기 쉬운 PR의 제목과 본문을 만들어주는 헬퍼야."},
                 {"role": "user", "content": prompt}
             ],
-            temperature=0.7,
+            temperature=0.8,
             max_tokens=500
         )
         
-        # Extract and parse the response
         content = response.choices[0].message.content
-        try:
-            result = json.loads(content)
-            return result
-        except json.JSONDecodeError:
-            lines = content.split('\n')
-            title = lines[0].replace('"title":', '').strip().strip('",')
-            body = '\n'.join(lines[1:]).replace('"body":', '').strip().strip('",')
-            return {"title": title, "body": body}
+        result = json.loads(content)
+        return result
     except Exception as e:
         return {"title": "Error generating PR description", "body": f"An error occurred: {str(e)}"}
 
@@ -90,6 +83,8 @@ with open("code.diff", "r") as f:
 
 try:
     result = generate_pr_description(diff, api_key)
+    result["title"] = result["title"].split(":", 1)[1].strip()
+    result["body"] = result["body"].split(":", 1)[1].strip()
     print(json.dumps(result))
 except Exception as e:
     print(json.dumps({
