@@ -4,63 +4,47 @@ import re
 import sys
 from openai import OpenAI
 
-def clean_diff(diff):
-    # Remove git diff headers and metadata
-    diff = re.sub(r'^diff --git.*$', '', diff, flags=re.MULTILINE)
-    diff = re.sub(r'^index.*$', '', diff, flags=re.MULTILINE)
-    diff = re.sub(r'^---.*$', '', diff, flags=re.MULTILINE)
-    diff = re.sub(r'^\+\+\+.*$', '', diff, flags=re.MULTILINE)
-    
-    # Extract changed file paths
-    files = re.findall(r'^\+\+\+ b/(.*)$', diff, flags=re.MULTILINE)
-    files = [f for f in files if f]
-    
-    # Extract actual changes
-    changes = []
-    for line in diff.split('\n'):
-        if line.startswith('+') and not line.startswith('+++'):
-            # Skip empty lines only
-            if line.strip():
-                changes.append(line[1:])
-    
-    return {
-        "files": files,
-        "changes": changes
-    }
 
-def generate_pr_description(diff_data, api_key):
-    # Check if this is a test run
-    if api_key.startswith("test_"):
-        return {
-            "title": "Test PR: Feature Update",
-            "body": "This is a test PR description generated without calling the actual API.\n\nChanges:\n- " + "\n- ".join(diff_data["changes"])
-        }
+def generate_pr_description(diff, api_key):
     
-    # Set up OpenAI API client
     client = OpenAI(api_key=api_key)
     
-    # Create a prompt for GPT
     prompt = f"""
-    Analyze the following code changes and create a pull request title and description.
+    {diff}
+    위는 코드의 변경 사항에 대한 Git diff야. diff를 보고 적절한 PR 제목과 본문을 만들어줘.
+
+    제목은 '[TYPE]: 변경 사항 요약'이라는 형식이어야 해.
+    TYPE은 FEAT, FIX, DOCS, STYLE, REFACTOR, TEST, BUILD, CI, CHORE, REVERT 중 하나여야 해.
+    너가 diff 파일의 내용을 보고 적절한 TYPE을 선택하면 된단다.
+    예를 들어,
+    [FEAT]: 기능 추가
+    [FIX]: 버그 수정
+    [DOCS]: 문서 수정
+    [STYLE]: 코드 스타일 수정
+    [REFACTOR]: 코드 리팩토링
+    [TEST]: 테스트 코드 추가
+    [BUILD]: 빌드 시스템 변경
+    [CI]: CI 변경
+    [CHORE]: 기타 사항 변경
+    [REVERT]: 되돌리기
+
+    내용은 각 변경 사항과 그에 대한 설명을 간단하게 적어줘.
+    변경 사항은 h3 소제목으로 적어주고 소제목 앞에 적절한 이모티콘을 설정해주면 좋을 것 같아.
+
+    참고로 언어는 한국어로 해줘.
     
-    Changed files: {', '.join(diff_data['files'])}
-    
-    Changes:
-    {chr(10).join(f"- {change}" for change in diff_data['changes'])}
-    
-    Please provide a response in the following JSON format:
+    무엇보다도 너는 반드시 아래와 같은 json 형식으로 답변해줘.
     {{
-        "title": "A concise title that follows conventional commit format (e.g., feat:, fix:, etc.)",
-        "body": "A detailed description of the changes, including the purpose and impact"
+        "title": "PR의 제목",
+        "body": "PR의 본문"
     }}
     """
     
     try:
-        # Call GPT API
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are a helpful assistant that analyzes code changes and creates pull request descriptions."},
+                {"role": "system", "content": "너는 리뷰어가 이해하기 쉬운 PR의 제목과 본문을 만들어주는 헬퍼야."},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.7,
@@ -73,7 +57,6 @@ def generate_pr_description(diff_data, api_key):
             result = json.loads(content)
             return result
         except json.JSONDecodeError:
-            # Fallback if JSON parsing fails
             lines = content.split('\n')
             title = lines[0].replace('"title":', '').strip().strip('",')
             body = '\n'.join(lines[1:]).replace('"body":', '').strip().strip('",')
@@ -81,7 +64,6 @@ def generate_pr_description(diff_data, api_key):
     except Exception as e:
         return {"title": "Error generating PR description", "body": f"An error occurred: {str(e)}"}
 
-# Get API key from command line argument
 if len(sys.argv) < 2:
     print(json.dumps({
         "title": "Error",
@@ -94,16 +76,8 @@ api_key = sys.argv[1]
 with open("code.diff", "r") as f:
     diff = f.read()
 
-# Process the diff
-diff_data = clean_diff(diff)
-
-# If no changes detected, use test data
-if not diff_data["changes"]:
-    diff_data["changes"] = ["This is a test change"]
-
-# Generate PR description
 try:
-    result = generate_pr_description(diff_data, api_key)
+    result = generate_pr_description(diff, api_key)
     print(json.dumps(result))
 except Exception as e:
     print(json.dumps({
