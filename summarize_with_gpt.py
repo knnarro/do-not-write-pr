@@ -72,14 +72,14 @@ def generate_pr_description(diff, api_key):
         result = json.loads(content)
         return result
     except json.JSONDecodeError:
-        lines = content.replace('"title":', '').replace('"body":', '').split('\n')
+        lines = content.replace('"title":', '').replace('"body":', '').split("\n")
         title, body = "", ""
         has_title, is_body_start = False, False
         for line in lines:
-            if line.startswith('[') and not has_title:
-                title = line.strip().strip('",')
+            if "[" in line and not has_title:
                 has_title = True
-            if line.startswith('###') and has_title:
+                title = "[" + line.split("[", 1)[1]
+            if "###" in line and has_title:
                 is_body_start = True
             if is_body_start:
                 body += f"{line.strip()}\n"
