@@ -106,18 +106,10 @@ if len(sys.argv) < 2:
 api_key = sys.argv[1]
 
 try:
-    # 파일에서 diff 읽기
     with open("code.diff", "r") as f:
         diff = f.read()
-        
-    # diff가 비어있는 경우 테스트 데이터 사용
-    if not diff.strip():
-        diff = "diff --git a/test.txt b/test.txt\nindex 1234567..abcdefg 100644\n--- a/test.txt\n+++ b/test.txt\n@@ -1,3 +1,4 @@\n Line 1\n Line 2\n+This is a new line\n Line 3"
     
-    # PR 설명 생성
     result = generate_pr_description(diff, api_key)
-    
-    # 결과 출력
     print(json.dumps(result, ensure_ascii=False))
 except Exception as e:
     print(json.dumps({
