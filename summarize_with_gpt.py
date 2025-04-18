@@ -72,18 +72,7 @@ def generate_pr_description(diff, api_key):
         result = json.loads(content)
         return result
     except json.JSONDecodeError:
-        lines = content.replace('"title":', '').replace('"body":', '').split("\n")
-        title, body = "", ""
-        has_title, is_body_start = False, False
-        for line in lines:
-            if "[" in line and not has_title:
-                has_title = True
-                title = "[" + line.split("[", 1)[1]
-            if "###" in line and has_title:
-                is_body_start = True
-            if is_body_start:
-                body += f"{line.strip()}\n"
-        return {"title": title, "body": body}
+        return {"title": "PR", "body": content}
 
 if len(sys.argv) < 2:
     print(json.dumps({
