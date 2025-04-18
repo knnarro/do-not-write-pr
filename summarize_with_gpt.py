@@ -62,7 +62,13 @@ def generate_pr_description(diff, api_key):
         max_tokens=500
     )
     content = response.choices[0].message.content
-    result = json.loads(content)
+    try:
+        result = json.loads(content)
+    except json.JSONDecodeError as e:
+        lines = content.split('\n')
+        title = lines[0].replace('"title":', '').strip().strip('",')
+        body = '\n'.join(lines[1:]).replace('"body":', '').strip().strip('",')
+        return {"title": title, "body": body}
     return result
 
 if len(sys.argv) < 2:
@@ -79,6 +85,8 @@ with open("code.diff", "r") as f:
 
 try:
     result = generate_pr_description(diff, api_key)
+    result["title"] = result["title"].split(":", 1)[1].strip()
+    result["body"] = result["body"].split(":", 1)[1].strip()
     print(json.dumps(result))
 except Exception as e:
     print(json.dumps({
