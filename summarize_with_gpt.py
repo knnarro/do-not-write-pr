@@ -62,7 +62,6 @@ def generate_pr_description(diff, api_key):
             temperature=0.8,
             max_tokens=500
         )
-        
         content = response.choices[0].message.content
         result = json.loads(content)
         return result
@@ -83,11 +82,13 @@ with open("code.diff", "r") as f:
 
 try:
     result = generate_pr_description(diff, api_key)
-    result["title"] = result["title"].split(":", 1)[1].strip()
-    result["body"] = result["body"].split(":", 1)[1].strip()
+    title_split = result["title"].split(":", 1)[1].strip()
+    body_split = result["body"].split(":", 1)[1].strip()
+    result["title"] = title_split if len(title_split) > 0 else result["title"]
+    result["body"] = body_split if len(body_split) > 0 else result["body"]
     print(json.dumps(result))
 except Exception as e:
     print(json.dumps({
         "title": "Error generating PR description",
-        "body": f"An error occurred: {str(e)}"
+        "body": f"An error occurred: {str(e)}.\nResult: {result}"
     })) 
