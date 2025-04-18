@@ -49,24 +49,21 @@ def generate_pr_description(diff, api_key):
         "title": "[FEAT] 새로운 기능 추가",
         "body": "### ✨ 새로운 기능 추가\n- 새로운 기능에 대한 설명 1\n- 새로운 기능에 대한 설명 2"
     }}
-    그리고 토큰 제한 때문에 끊길 것 같은 문장은 답변에 포함시키지 않아도 돼.
     """
     
-    try:
-        response = client.chat.completions.create(
-            model="gpt-4-turbo",
-            messages=[
-                {"role": "system", "content": "너는 리뷰어가 이해하기 쉬운 PR의 제목과 본문을 만들어주는 헬퍼야."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.8,
-            max_tokens=500
-        )
-        content = response.choices[0].message.content
-        result = json.loads(content)
-        return result
-    except Exception as e:
-        return {"title": "Error generating PR description", "body": f"An error occurred: {str(e)}"}
+    
+    response = client.chat.completions.create(
+        model="gpt-4-turbo",
+        messages=[
+            {"role": "system", "content": "너는 리뷰어가 이해하기 쉬운 PR의 제목과 본문을 만들어주는 헬퍼야."},
+            {"role": "user", "content": prompt}
+        ],
+        temperature=0.8,
+        max_tokens=500
+    )
+    content = response.choices[0].message.content
+    result = json.loads(content)
+    return result
 
 if len(sys.argv) < 2:
     print(json.dumps({
