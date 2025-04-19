@@ -9,6 +9,10 @@ inputs:
   base_branch:
     description: "Base branch to compare current changes with (e.g., main, develop)"
     required: true
+  language:
+    description: "Language to use for the PR description (e.g., en, ko, zh). Optional, defaults to English."
+    required: false
+    default: "en"
 
 runs:
   using: "docker"
