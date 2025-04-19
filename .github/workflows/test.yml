@@ -17,6 +17,7 @@ jobs:
         uses: ./
         with:
           base_branch: main
+          language: ko  # Optional, defaults to English
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
